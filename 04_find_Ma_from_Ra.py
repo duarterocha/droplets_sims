@@ -79,8 +79,6 @@ with DropletTempProblemMafromRa() as problem:
     # Thereby we solve for the flow, etc, but do not adjust Ra yet
     problem.solve()
 
-    print("\n\n\n\n\n\n\n\n Ra =" + str(problem.Ra.value) + "\n\n\n\n\n\n\n\n Ma =" + str(problem.get_Ma()) + "\n\n\n\n\n\n\n")
-
     # Now when all other fields are converged, let's activate the Ra finding
     problem.get_ode("globals").set_dirichlet_active(Ma=False)  # Remove the fixation of Ma, now Ma will be adjusted
     problem.reapply_boundary_conditions()  # Since the boundary conditions are changed (Ma is now free), we must call this
