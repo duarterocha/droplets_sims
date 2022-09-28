@@ -1,5 +1,6 @@
 from scripts import *
 import numpy
+from pyoomph.expressions import *
 
 if __name__ == "__main__":
     with DropletTempProblem() as problem:
@@ -11,8 +12,6 @@ if __name__ == "__main__":
                                        filetrunk="eigenreal_{:05d}"))  # real part of the eigenfunction
         problem.plotter.append(
             Plotter(problem, eigenvector=0, eigenmode="imag", filetrunk="eigenimag_{:05d}"))  # imag. part
-        problem.plotter.append(
-            Plotter(problem, eigenvector=0, eigenmode="abs", filetrunk="eigenabs_{:05d}"))  # magnitude
 
         for p in problem.plotter:
             p.file_ext = ["png"]
@@ -27,9 +26,13 @@ if __name__ == "__main__":
             problem.set_Ra(Ra_value)
             problem.solve()
             problem.solve_eigenproblem(6)
+        problem.set_Ra(problem.get_Ra()+5000)
+        problem.solve()
+        problem.perturb_dofs(0.001 * problem.get_last_eigenvectors()[0])
+        problem.solve()
+        problem.solve_eigenproblem(6)
         omega = numpy.imag(problem.get_last_eigenvalues()[0])
-        problem.set_Ra(problem.get_Ra() + 5000)
         problem.set_current_time(0)
-        problem.run(100 / omega, startstep=1 / omega)
+        problem.run(2 * pi / omega, startstep=0.2 * pi / omega)
 
         problem.output_at_increased_time()
