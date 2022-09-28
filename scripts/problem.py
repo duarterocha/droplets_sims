@@ -106,6 +106,6 @@ class DropletTempProblem(Problem):
         # Then divide it by the volume and take the square root => average velocity magnitude
         d_eqs += IntegralObservables(avg_velo=lambda _v_sqr_int, _volume: square_root(_v_sqr_int / _volume))
         d_eqs += IntegralObservableOutput(filename="observables",
-                                         first_column=["Ma", "Ra"])  # output to write it to file
+                                         first_column=["time", "Ma", "Ra"])  # output to write it to file
         # Add equations
         self.add_equations(d_eqs @ "droplet" + g_eqs @ "gas")
