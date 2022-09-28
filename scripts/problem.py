@@ -20,8 +20,8 @@ class DropletTempProblem(Problem):
         super(DropletTempProblem, self).__init__()
 
         # Droplet Properties
-        self.Ra = self.get_global_parameter("Ra") # Rayleigh
-        self.Ma = self.get_global_parameter("Ma") # Marangoni
+        self._param_Ra = self.get_global_parameter("Ra") # Rayleigh
+        self._param_Ma = self.get_global_parameter("Ma") # Marangoni
 
         # Evaporation rate
         self.evap_rate = - dot(grad(var("c",domain="gas")),var("normal"))
@@ -30,10 +30,28 @@ class DropletTempProblem(Problem):
         self.radius = 1  # radius of droplet that defines the mesh
         self.contact_angle = 120 * degree # contact angle
         self.domain_size = 1  # size of domain
-        self.resolution = 0.05  # resolution of mesh
+        self.resolution = 0.025  # resolution of mesh
 
         # add the plotter
         self.plotter = Plotter(self)
+
+    def set_Ra(self,value):
+        self._param_Ra.value=value
+
+    def get_Ra(self,symbolic=False):
+        if symbolic:
+            return self._param_Ra.get_symbol() # Symbolic for expressions
+        else:
+            return self._param_Ra.value # current value
+
+    def set_Ma(self,value):
+        self._param_Ma.value=value
+
+    def get_Ma(self,symbolic=False):
+        if symbolic:
+            return self._param_Ma.get_symbol() # Symbolic for expressions
+        else:
+            return self._param_Ma.value # current value
 
     def define_problem(self):
         # Changing to an axisymmetric coordinate system
@@ -49,9 +67,9 @@ class DropletTempProblem(Problem):
         d_eqs = MeshFileOutput()
 
         # Set equations
-        d_eqs += StokesEquations(bulkforce=self.Ra.get_symbol()*var("T")*vector(0,-1)*-1)  # Stokes Equation
+        d_eqs += StokesEquations(bulkforce=self.get_Ra(symbolic=True)*var("T")*vector(0,-1)*-1)  # Stokes Equation
         d_eqs += AdvectionDiffusionEquations(diffusivity=1, fieldnames="T", space="C2")  # Advection-Diffusion Equation
-        d_eqs += NavierStokesFreeSurface(surface_tension=-self.Ma.get_symbol() * var("T"), static_interface=True) @ "interface" # Free interface
+        d_eqs += NavierStokesFreeSurface(surface_tension=-self.get_Ma(symbolic=True) * var("T"), static_interface=True) @ "interface" # Free interface
 
         # Boundary Conditions
         d_eqs += DirichletBC(velocity_x=0, velocity_y=0) @ "droplet_surface"  # No slip at substrate

@@ -47,6 +47,9 @@ class Plotter(MatplotlibPlotter):
 
 
 		# Info text
-		txt = "Ma={marangoni}, Ra={rayleigh}".format(marangoni=str(round(p.Ma.value,2)), rayleigh=str(round(p.Ra.value),2))
+		txt = "Ma={marangoni}, Ra={rayleigh}".format(marangoni=round(p.get_Ma(),2), rayleigh=round(p.get_Ra(),2))
 		self.add_text(txt, position="top left", textsize=20,
 					  bbox=dict(boxstyle='round', facecolor='wheat', alpha=1))
+		txt_time = "t={time}".format(time=p.get_current_time())
+		self.add_text(txt_time, position="top center", textsize=20,
+                                    bbox=dict(boxstyle='round', facecolor='white', alpha=1))
