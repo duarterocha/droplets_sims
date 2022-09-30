@@ -7,7 +7,7 @@ if __name__ == "__main__":
         NumPerOrder = 5  # Five sample points between each power of 10
         # Ma ranges
         Ma_MinRangePowerTen = 0
-        Ma_MaxRangePowerTen = 5
+        Ma_MaxRangePowerTen = 3
         # Ra ranges
         Ra_MinRangePowerTen = 0
         Ra_MaxRangePowerTen = 5
