@@ -16,23 +16,45 @@ if __name__ == "__main__":
             p.file_ext = ["png"]  # plot both png and pdf for all plotters
 
         problem.max_refinement_level = 0
+        problem.initialise()
 
         Neigen = 6  # Numbers of eigenvalues to calculate
-        problem.solve_eigenproblem(Neigen)  # get an eigenvector as guess
+        #problem.solve_eigenproblem(Neigen)  # get an eigenvector as guess
         # Write eigenvalues to file
 
         bifurcationfile = open(os.path.join(problem.get_output_directory(), "bifurcation.txt"), "w")
+        
+        #raise RuntimeError("Fill in your state file below and remove this RuntimeError!")
         problem.load_state("hysteresis/_states/state_003608.dump")
+        
         with problem.select_dofs() as dofs:
             dofs.unselect("gas")  # Gas is not solved for
-
-            for parameter in problem.find_bifurcation_via_eigenvalues("Ra", -10, epsilon=1e-4):
-                print(parameter)
-            problem.activate_bifurcation_tracking("pitchfork","Ra",eigenvector=problem.get_last_eigenvectors()[0])
+            problem.solve() # Solve once more
+            problem.solve_eigenproblem(Neigen) # solve eigenproblem. Since the gas is now deactivated, the eigenvector has different size!
+            problem.activate_bifurcation_tracking("Ra","fold",eigenvector=problem.get_last_eigenvectors()[0])
             problem.solve()
-            ds = -0.001
+            
+            ds = -1
             while problem.get_Ma() >= 1:
                 problem.output_at_increased_time()
-                ds = problem.arclength_continuation("Ma", ds, max_ds=5000)
+                ds = problem.arclength_continuation("Ma", ds, max_ds=10)
                 line = [problem.get_Ma(), problem.get_Ra()]
                 bifurcationfile.write("\t".join(map(str, line)) + "\n")
+
+            problem.deactivate_bifurcation_tracking()
+
+            problem.solve()
+            problem.solve_eigenproblem(Neigen)
+            problem.activate_bifurcation_tracking("Ra", "hopf",
+                                                  eigenvector=problem.get_last_eigenvectors()[0],
+                                                  omega=numpy.imag(problem.get_last_eigenvalues()[0]))
+            problem.solve()
+
+            ds = 1
+            while problem.get_Ma() <= 1000:
+                problem.output_at_increased_time()
+                ds = problem.arclength_continuation("Ma", ds, max_ds=50)
+                line = [problem.get_Ma(), problem.get_Ra()]
+                bifurcationfile.write("\t".join(map(str, line)) + "\n")
+
+

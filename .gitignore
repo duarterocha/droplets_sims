@@ -5,6 +5,7 @@ stability_analysis/
 temporal_solve/
 hysteresis
 bifurcation_tracking_hysteresis
+bifurcation_tracking_down.py
 __pycache__
 *.pyc
 *.msh
