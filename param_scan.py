@@ -5,7 +5,7 @@ if __name__ == "__main__":
     with DropletTempProblem() as problem:
         problem.set_c_compiler("tcc")
 
-        problem.contact_angle=150*degree
+        problem.contact_angle=120*degree
 
         # Scanned parameter ranges in terms of 10^...\
         NumPerOrder = 5  # Five sample points between each power of 10

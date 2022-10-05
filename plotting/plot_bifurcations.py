@@ -34,12 +34,13 @@ if len(positive_stream_func)<NumRa*NumMa:
 
 positive_stream_func = positive_stream_func.reshape(NumMa, NumRa).transpose()
 
-fig, ax = plt.subplots(figsize=(12,6))
+fig, ax = plt.subplots(figsize=(12,6), dpi=150)
 cnt_stream_func = ax.contourf(UniqueMa, UniqueRa, positive_stream_func)
 
 # Title and colorbar
-ax.set_title("Parameter Scan")
-plt.colorbar(cnt_stream_func)
+ax.set_title("Stream Function")
+cbar = fig.colorbar(cnt_stream_func, ticks=[0, 1])
+cbar.ax.set_yticklabels(['0', '1'])
 ax.set_ylabel("Ra")
 ax.set_xlabel("Ma")
 ax.loglog() # log-log plot
@@ -50,13 +51,13 @@ ax.set_box_aspect(1)
 
 Ma_first_curve = first_bif_curve[:,1]
 Ra_first_curve = first_bif_curve[:,2]
-ax.plot(Ma_first_curve,Ra_first_curve, color="red")
+#ax.plot(Ma_first_curve,Ra_first_curve, color="red")
 
 # Second Bifurcation
 
 Ma_second_curve = second_bif_curve[:,1]
 Ra_second_curve = second_bif_curve[:,2]
-ax.plot(Ma_second_curve,Ra_second_curve, color="red", linestyle="--")
+#ax.plot(Ma_second_curve,Ra_second_curve, color="red", linestyle="--")
 
 plt.xlim([UniqueMa[0], UniqueMa[-1]])
 plt.ylim([UniqueRa[0], UniqueRa[-1]])

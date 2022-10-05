@@ -46,7 +46,7 @@ eigenvalues_real=eigenvalues_real.reshape(NumMa,NumRa).transpose()
 eigenvalues_imag=eigenvalues_imag.reshape(NumMa,NumRa).transpose()
 
 # Plot Ma,Ra,PosStreamFraction
-fig, ax = plt.subplots(1, 3, figsize=(12,6), sharey=True)
+fig, ax = plt.subplots(1, 3, figsize=(12,6), sharey=True, dpi=150)
 cnt_stream_func = ax[0].contourf(UniqueMa, UniqueRa,positive_stream_func)
 cnt_real = ax[1].contourf(UniqueMa,UniqueRa,eigenvalues_real)
 cnt_imag = ax[2].contourf(UniqueMa,UniqueRa,eigenvalues_imag)

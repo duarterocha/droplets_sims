@@ -1,3 +1,4 @@
+single_run
 bifurcation_tracking/
 find_Ma_from_Ra/
 param_scan/
@@ -5,7 +6,7 @@ stability_analysis/
 temporal_solve/
 hysteresis
 bifurcation_tracking_hysteresis
-bifurcation_tracking_down.py
+bifurcation_tracking_hysteresis_down_with_eigen
 __pycache__
 *.pyc
 *.msh

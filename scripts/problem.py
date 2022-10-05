@@ -16,7 +16,7 @@ Define and solve problem
 
 class DropletTempProblem(Problem):
 
-    def __init__(self):
+    def __init__(self, surfactants = True):
         super(DropletTempProblem, self).__init__()
 
         # Droplet Properties
@@ -31,6 +31,10 @@ class DropletTempProblem(Problem):
         self.contact_angle = 120 * degree # contact angle
         self.domain_size = 1  # size of domain
         self.resolution = 0.025  # resolution of mesh
+
+        # Surfactants
+        self.surfactants_bool = surfactants
+        self.average_amount_surfactants = 1
 
         # add the plotter
         self.plotter = Plotter(self)
@@ -77,6 +81,13 @@ class DropletTempProblem(Problem):
         d_eqs += DirichletBC(T=0) @ "droplet_surface"  # Fixed temperature at contact line
         d_eqs += DirichletBC(pressure=0) @ "droplet_surface/interface"  # Offset pressure
         d_eqs += NeumannBC(T=self.evap_rate) @ "interface"  # Temperature flux through boundary
+
+        # Add surfactants
+        if self.surfactants_bool:
+            lagr_mult_eqs = GlobalLagrangeMultiplier("lagrange_multiplier")  # Add lagrange multiplier for surfactants
+            self.add_equations(lagr_mult_eqs @ "globals")
+            lagr_mult = var("lagrange_multiplier", domain="globals")
+            d_eqs += SurfactantTransportEquation(lagr_mult, self.average_amount_surfactants) @ "interface"  # The constraint is now fully assembled
 
         # Plotting
         d_eqs += LocalExpressions(evap_rate=self.evap_rate) @ "interface"  # Output file
