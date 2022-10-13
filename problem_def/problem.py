@@ -3,11 +3,11 @@ from pyoomph.equations.poisson import *
 from pyoomph.equations.navier_stokes import *
 from pyoomph.equations.advection_diffusion import *
 from pyoomph.equations.stokes_stream_func import *
-from scripts.equations import *
+from problem_def.equations import *
 from pyoomph.expressions.units import * # units
 from pyoomph.utils.dropgeom import DropletGeometry
-from scripts.mesh import Mesh
-from scripts.plot import Plotter
+from problem_def.mesh import Mesh
+from problem_def.plot import Plotter
 
 '''
 Define and solve problem
@@ -22,6 +22,7 @@ class DropletTempProblem(Problem):
         # Droplet Properties
         self._param_Ra = self.get_global_parameter("Ra") # Rayleigh
         self._param_Ma = self.get_global_parameter("Ma") # Marangoni
+        self.param_Strength = self.get_global_parameter("Strength") # Surfactancts Strength
 
         # Evaporation rate
         self.evap_rate = - dot(grad(var("c",domain="gas")),var("normal"))
@@ -57,6 +58,15 @@ class DropletTempProblem(Problem):
         else:
             return self._param_Ma.value # current value
 
+    def set_Strength(self,value):
+        self.param_Strength.value=value
+
+    def get_Strength(self,symbolic=False):
+        if symbolic:
+            return self.param_Strength.get_symbol() # Symbolic for expressions
+        else:
+            return self.param_Strength.value # current value
+
     def define_problem(self):
         # Changing to an axisymmetric coordinate system
         self.set_coordinate_system(axisymmetric)
@@ -70,10 +80,18 @@ class DropletTempProblem(Problem):
         '''Droplet'''
         d_eqs = MeshFileOutput()
 
+        # Add surfactants
+        if self.surfactants_bool:
+            lagr_mult_eqs = GlobalLagrangeMultiplier(lagrange_multiplier=0)  # Add lagrange multiplier for surfactants
+            self.add_equations(lagr_mult_eqs @ "globals")
+            lagr_mult = var("lagrange_multiplier", domain="globals")
+            d_eqs += SurfactantTransportEquation(lagr_mult,
+                                                 self.average_amount_surfactants) @ "interface"  # The constraint is now fully assembled
+
         # Set equations
         d_eqs += StokesEquations(bulkforce=self.get_Ra(symbolic=True)*var("T")*vector(0,-1)*-1)  # Stokes Equation
         d_eqs += AdvectionDiffusionEquations(diffusivity=1, fieldnames="T", space="C2")  # Advection-Diffusion Equation
-        d_eqs += NavierStokesFreeSurface(surface_tension=-self.get_Ma(symbolic=True) * var("T"), static_interface=True) @ "interface" # Free interface
+        d_eqs += NavierStokesFreeSurface(surface_tension=(-self.get_Ma(symbolic=True) * var("T")) - self.get_Strength(symbolic=True)*var("Gamma"), static_interface=True) @ "interface" # Free interface
 
         # Boundary Conditions
         d_eqs += DirichletBC(velocity_x=0, velocity_y=0) @ "droplet_surface"  # No slip at substrate
@@ -81,13 +99,6 @@ class DropletTempProblem(Problem):
         d_eqs += DirichletBC(T=0) @ "droplet_surface"  # Fixed temperature at contact line
         d_eqs += DirichletBC(pressure=0) @ "droplet_surface/interface"  # Offset pressure
         d_eqs += NeumannBC(T=self.evap_rate) @ "interface"  # Temperature flux through boundary
-
-        # Add surfactants
-        if self.surfactants_bool:
-            lagr_mult_eqs = GlobalLagrangeMultiplier("lagrange_multiplier")  # Add lagrange multiplier for surfactants
-            self.add_equations(lagr_mult_eqs @ "globals")
-            lagr_mult = var("lagrange_multiplier", domain="globals")
-            d_eqs += SurfactantTransportEquation(lagr_mult, self.average_amount_surfactants) @ "interface"  # The constraint is now fully assembled
 
         # Plotting
         d_eqs += LocalExpressions(evap_rate=self.evap_rate) @ "interface"  # Output file
@@ -117,6 +128,6 @@ class DropletTempProblem(Problem):
         # Then divide it by the volume and take the square root => average velocity magnitude
         d_eqs += IntegralObservables(avg_velo=lambda _v_sqr_int, _volume: square_root(_v_sqr_int / _volume))
         d_eqs += IntegralObservableOutput(filename="observables",
-                                         first_column=["time", "Ma", "Ra"])  # output to write it to file
+                                         first_column=["time", "Strength", "Ma", "Ra"])  # output to write it to file
         # Add equations
         self.add_equations(d_eqs @ "droplet" + g_eqs @ "gas")

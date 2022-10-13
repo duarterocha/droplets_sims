@@ -1,5 +1,5 @@
 import pyoomph.solvers.petsc
-from scripts import *
+from problem_def import *
 
 if __name__ == "__main__":
     with DropletTempProblem() as problem:

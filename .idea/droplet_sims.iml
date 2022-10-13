@@ -4,7 +4,6 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/param_scan" />
       <excludeFolder url="file://$MODULE_DIR$/find_Ma_from_Ra" />
-      <excludeFolder url="file://$MODULE_DIR$/stability_analysis" />
       <excludeFolder url="file://$MODULE_DIR$/bifurcation_tracking" />
       <excludeFolder url="file://$MODULE_DIR$/temporal_solve" />
       <excludeFolder url="file://$MODULE_DIR$/temporal_solve_cont" />
@@ -12,6 +11,7 @@
       <excludeFolder url="file://$MODULE_DIR$/bifurcation_tracking_hysteresis" />
       <excludeFolder url="file://$MODULE_DIR$/bifurcation_tracking_hysteresis_down_with_eigen" />
       <excludeFolder url="file://$MODULE_DIR$/single_run" />
+      <excludeFolder url="file://$MODULE_DIR$/param_scan_surfactancts" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

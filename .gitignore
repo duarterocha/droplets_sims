@@ -1,12 +1,7 @@
-single_run
-bifurcation_tracking/
-find_Ma_from_Ra/
-param_scan/
-stability_analysis/
-temporal_solve/
-hysteresis
-bifurcation_tracking_hysteresis
-bifurcation_tracking_hysteresis_down_with_eigen
+param_scan_surfactancts/
+stability_analysis/bifurcation_tracking
+stability_analysis/old_bifurcation_tracking
+stability_analysis/param_scan
 __pycache__
 *.pyc
 *.msh

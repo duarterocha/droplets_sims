@@ -1,4 +1,4 @@
-from scripts import *
+from problem_def import *
 
 class DropletTempProblemMafromRa(DropletTempProblem): # Inherit from the previous problem
 

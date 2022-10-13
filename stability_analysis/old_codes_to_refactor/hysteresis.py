@@ -1,4 +1,4 @@
-from scripts import *
+from problem_def import *
 import numpy
 from pyoomph.expressions import *
 from os import listdir
