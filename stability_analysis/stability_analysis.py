@@ -14,8 +14,3 @@ if __name__ == "__main__":
         output_dir = problem.get_output_directory()
 
         parameter_scan(problem, calculate_eigenvalues=True)
-
-        '''parameter_contour_plot(os.path.join(output_dir, "stability_analysis.txt"), 'positive_stream_area_fraction')
-        parameter_contour_plot(os.path.join(output_dir, "stability_analysis.txt"), 'real_eigen', title = 'Real Eigenvalues', eigen_evalutation=True)
-        parameter_contour_plot(os.path.join(output_dir, "stability_analysis.txt"), 'imag_eigen',
-                               title='Imaginary Eigenvalues', eigen_evalutation=True)'''

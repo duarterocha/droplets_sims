@@ -68,7 +68,7 @@ def parameter_scan(problem_name, calculate_eigenvalues=False):
     # If also performing stability analysis, create a file to write output
     if calculate_eigenvalues:
         eigenfile = open(os.path.join(problem_name.get_output_directory(), "stability_analysis.txt"), "w")
-        set_title_output_with_eigen(problem_name, eigenfile)
+        set_title_output_with_eigen(eigenfile)
 
     # The gas phase does not change. So we remove it from solving
     with problem_name.select_dofs() as dofs:
