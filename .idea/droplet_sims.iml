@@ -12,6 +12,11 @@
       <excludeFolder url="file://$MODULE_DIR$/bifurcation_tracking_hysteresis_down_with_eigen" />
       <excludeFolder url="file://$MODULE_DIR$/single_run" />
       <excludeFolder url="file://$MODULE_DIR$/param_scan_surfactancts" />
+      <excludeFolder url="file://$MODULE_DIR$/stability_analysis/bifurcation_tracking" />
+      <excludeFolder url="file://$MODULE_DIR$/stability_analysis/old_bifurcation_tracking" />
+      <excludeFolder url="file://$MODULE_DIR$/stability_analysis/param_scan" />
+      <excludeFolder url="file://$MODULE_DIR$/stability_analysis/temporal_solve" />
+      <excludeFolder url="file://$MODULE_DIR$/plotting/output_figures" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -40,7 +40,7 @@ def set_title_output_with_eigen(output_file):
 
 def output_with_eigen(problem, output_file, Neigen=6):
     eigvals, eigvects = problem.solve_eigenproblem(Neigen, shift=0)  # solve for 6 eigenvalues with zero shift
-    line = [problem.get_Strength(), problem.get_Ma(), problem.get_Ra(), eigvals[0].real, eigvals[0].imag]
+    line = [problem.get_Strength(), problem.get_Ma(), problem.get_Ra(), eigvals[0].real, eigvals[0].imag, eigvals[1].real, eigvals[1].imag, eigvals[2].real, eigvals[2].imag, eigvals[3].real, eigvals[3].imag, eigvals[4].real, eigvals[4].imag]
     print(problem.get_mesh("droplet").evaluate_observable("positive_stream_area_fraction"))
     line += [problem.get_mesh("droplet").evaluate_observable("positive_stream_area_fraction")]  # line to write
     output_file.write("\t".join(map(str, line)) + "\n")  # write to file eigenfile.flush()
@@ -121,10 +121,18 @@ def set_title_output_with_bifurcation(output_file):
     title = ["Ma", "Ra"]
     output_file.write("\t".join(map(str, title)) + "\n")
 
+def get_guess_eigenvector(problem_name, bifurcation_type):
+    eigenvector = problem_name.get_last_eigenvectors()[0]
+    omega = None
+    if bifurcation_type == 'hopf':
+        omega = numpy.imag(problem_name.get_last_eigenvalues()[0])
+    return eigenvector,omega
 
-def jump_on_bifurcation(problem_name, bifurcation_type, eigenvector, omega, bifurcationfile, ds=0.001, lower_Ma=1,
+
+def jump_on_bifurcation(problem_name, bifurcation_type, bifurcationfile, ds=0.001, lower_Ma=1,
                         upper_Ma=10000):
     # Activate bifurcation tracking and solve
+    eigenvector, omega = get_guess_eigenvector(problem_name, bifurcation_type)
     problem_name.activate_bifurcation_tracking("Ra", bifurcation_type, eigenvector=eigenvector, omega=omega)
     problem_name.solve()
 
@@ -157,10 +165,6 @@ def bifurcation_tracking(problem_name, init_guess_param_eigenvector=[10, 100], s
     problem_name.solve()
     # Get an eigenvector as guess
     problem_name.solve_eigenproblem(6)
-    eigenvector = problem_name.get_last_eigenvectors()[0]
-    omega = None
-    if bifurcation_type == 'hopf':
-        omega = numpy.imag(problem_name.get_last_eigenvalues()[0])
 
     # Write eigenvalues to file
     bifurcationfile = open(os.path.join(problem_name.get_output_directory(), "bifurcation.txt"), "w")
@@ -176,11 +180,44 @@ def bifurcation_tracking(problem_name, init_guess_param_eigenvector=[10, 100], s
 
         # Jump on bifurcations going up
         ds = 0.001
-        jump_on_bifurcation(problem_name, bifurcation_type, eigenvector, omega, bifurcationfile, ds)
+        jump_on_bifurcation(problem_name, bifurcation_type, bifurcationfile, ds)
 
         # Solve for last parameter set
         problem_name.solve()
         problem_name.solve_eigenproblem(6)
 
         ds = -10
-        jump_on_bifurcation(problem_name, bifurcation_type, eigenvector, omega, bifurcationfile, ds)
+        jump_on_bifurcation(problem_name, bifurcation_type, bifurcationfile, ds)
+
+
+'''
+Temporal solve
+'''
+
+
+def find_unstable_from_init_stable(problem_name, init_param = [100,1000]):
+
+    # Set initial parameters within stable region
+    problem_name.set_Ma(init_param[0])
+    problem_name.set_Ra(init_param[1])
+
+    # First solve
+    problem_name.solve(globally_convergent_newton=True, max_newton_iterations=100)
+    problem_name.solve_eigenproblem(6)
+
+    # Write to file
+    temporal_solve_file = open(os.path.join(problem_name.get_output_directory(), "temporal_solve.txt"), "w")
+    set_title_output_with_eigen(temporal_solve_file)
+
+    # Find unstable region
+    while numpy.real(problem_name.get_last_eigenvalues()[0]) < 0:
+        problem_name.set_Ra(problem_name.get_Ra() + 1000)
+        problem_name.solve()
+        problem_name.solve_eigenproblem(6)
+        line = [problem_name.get_Strength(), problem_name.get_Ma(), problem_name.get_Ra(), numpy.real(problem_name.get_last_eigenvalues()[0]),
+                numpy.imag(problem_name.get_last_eigenvalues()[0])]  # line to write
+        line += [problem_name.get_current_time(), problem_name.get_mesh("droplet").evaluate_observable("positive_stream_area_fraction"), problem_name.get_mesh("droplet").evaluate_observable("avg_velo")]
+        temporal_solve_file.write("\t".join(map(str, line)) + "\n")
+
+    # Output results
+    problem_name.output()

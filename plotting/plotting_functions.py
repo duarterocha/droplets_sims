@@ -37,7 +37,7 @@ def get_data_for_contour(file, *args):
 
     return (Strength, Ma, Ra, zdata)
 
-def personalize_cbars(ax, cnt, cnt_lines, strength_value, title, eigen_evalutation = False):
+def personalize_cbars(ax, cnt, cnt_lines, title, eigen_evalutation = False):
 
     # Set title
     ax.set_title(title)
@@ -81,11 +81,39 @@ def parameter_contour_plot(file, plot_function = "positive_stream_area_fraction"
     cnt_lines = ax.contourf(Ma, Ra, plot_func, levels=levels, colors="olive", linestyles='dashed')
 
     # Axis, labels, colorbar
-    personalize_cbars(ax, cnt, cnt_lines, Strength, title, eigen_evalutation)
+    personalize_cbars(ax, cnt, cnt_lines, title, eigen_evalutation)
+
+def parameter_avg_velo_contour_plot(file, plot_function = "positive_stream_area_fraction", title = "Competing Ma vs Ra", eigen_evalutation = False):
+
+    # LaTEX fonts
+    mpl.rcParams['text.usetex'] = True
+
+    Strength, Ma, Ra, plot_func = get_data_for_contour(file, plot_function)
+
+    if eigen_evalutation:
+        plot_func = numpy.where(plot_func > 0, 1, plot_func)
+        plot_func = numpy.where(plot_func < 0, -1, plot_func)
+
+    # Contour from data
+    fig, ax = plt.subplots()
+    cnt = ax.contourf(Ma, Ra, plot_func, cmap = "summer")
+
+    # Axis, labels, colorbar
+    # Set title
+    ax.set_title(title)
+
+    # Axis
+    ax.loglog()
+    ax.set_aspect('equal')
+    ax.set_xlabel("Ma", fontsize=15)
+    ax.set_ylabel("Ra", fontsize=15)
+
+    # Colorbar, legend
+    cbar = plt.colorbar(cnt, shrink=0.7)
 
 def bifurcation_plot(files_bifurcation, file_param_scan):
 
-    parameter_contour_plot(file_param_scan)
+    parameter_contour_plot(file_param_scan,title="Bifurcations")
 
     def plotting_method(file):
         # Get data from file
@@ -98,7 +126,8 @@ def bifurcation_plot(files_bifurcation, file_param_scan):
         Ma = df['Ma'].values
         Ra = df['Ra'].values
 
-        plt.plot(Ma, Ra, linestyle='dashed')
+        plt.ylim(top=10**5)
+        plt.plot(Ma, Ra, linestyle='dashed', color = 'black', label = 'Bifurcation')
 
     if type(files_bifurcation) != 'list':
         plotting_method(files_bifurcation)
@@ -106,7 +135,16 @@ def bifurcation_plot(files_bifurcation, file_param_scan):
         for file in files_bifurcation:
             plotting_method(file)
 
+def avg_velo_plot(temporal_solve_file):
 
+    # Get data from file
+    df = pd.read_csv(temporal_solve_file, sep='\t')
+
+    # Get variables
+    time = df["#time"].values
+    avg_velo = df["avg_velo[]"].values
+
+    plt.plot(time, avg_velo)
 
 
 
