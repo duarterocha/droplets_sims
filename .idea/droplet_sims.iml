@@ -16,7 +16,9 @@
       <excludeFolder url="file://$MODULE_DIR$/stability_analysis/old_bifurcation_tracking" />
       <excludeFolder url="file://$MODULE_DIR$/stability_analysis/param_scan" />
       <excludeFolder url="file://$MODULE_DIR$/stability_analysis/temporal_solve" />
-      <excludeFolder url="file://$MODULE_DIR$/plotting/output_figures" />
+      <excludeFolder url="file://$MODULE_DIR$/stationary_model/plotting/output_figures" />
+      <excludeFolder url="file://$MODULE_DIR$/stationary_model/stability_analysis/stability_analysis" />
+      <excludeFolder url="file://$MODULE_DIR$/temporal_model/runs/single_run" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
