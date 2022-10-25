@@ -8,6 +8,7 @@ from stationary_model.problem_def.equations import *
 from pyoomph.expressions.units import * # units
 from pyoomph.utils.dropgeom import DropletGeometry
 from stationary_model.problem_def.mesh import Mesh
+from pyoomph.meshes.remesher import * # to remesh at large distortions
 from stationary_model.problem_def.plot import Plotter
 
 '''
@@ -82,6 +83,8 @@ class DropletTempProblem(Problem):
         geom = DropletGeometry(volume=1, contact_angle=self.contact_angle)
         mesh = Mesh(radius=geom.curv_radius, contact_angle=geom.contact_angle)
         mesh.default_resolution = self.resolution
+        mesh.mesh_mode = "tris"
+        mesh.remesher = Remesher2d(mesh)  # add remeshing possibility
         self.add_mesh_template(mesh)
 
         '''Droplet'''
@@ -92,8 +95,8 @@ class DropletTempProblem(Problem):
 
         # Set equations
         d_eqs += NavierStokesEquations(bulkforce=self.get_Ra(symbolic=True)*var("T")*vector(0,-1)*-1)  # Stokes Equation
-        d_eqs += AdvectionDiffusionEquations(diffusivity=1, fieldnames="T", space="C2")  # Advection-Diffusion Equation
-        d_eqs += NavierStokesFreeSurface(surface_tension=-self.get_Ma(symbolic=True) * var("T") - self.get_Strength(symbolic=True)*var("Gamma"), mass_transfer_rate= self.evap_rate) @ "interface" # Free interface
+        d_eqs += AdvectionDiffusionEquations(fieldnames="T", space="C2")  # Advection-Diffusion Equation
+        d_eqs += NavierStokesFreeSurface(surface_tension=100-self.get_Ma(symbolic=True) * var("T") - self.get_Strength(symbolic=True)*var("Gamma"), mass_transfer_rate= self.evap_rate) @ "interface" # Free interface
 
         # Boundary Conditions
         d_eqs += DirichletBC(mesh_x=0, velocity_x=0) @ "droplet_axis"  # No flow through axis
@@ -152,6 +155,10 @@ class DropletTempProblem(Problem):
         # Initial conditions
         g_eqs += InitialCondition(c=0) # Initial vapor concentration in the gas phase initially
 
+        # Control remeshing
+        d_eqs += RemeshWhen(RemeshingOptions(max_expansion=1.2, min_expansion=0.8))
+        g_eqs += RemeshWhen(RemeshingOptions(max_expansion=1.2, min_expansion=0.8))
+
         '''Integral Observables'''
         # Integrate to find area and positive values of stream function
         d_eqs += IntegralObservables(_cross_area=1,_pos_stream_area=heaviside(var("streamfunc")),_coordinante_system=cartesian)
@@ -161,6 +168,8 @@ class DropletTempProblem(Problem):
         d_eqs += IntegralObservables(_v_sqr_int=dot(var("velocity"), var("velocity")), _volume=1)
         # Then divide it by the volume and take the square root => average velocity magnitude
         d_eqs += IntegralObservables(avg_velo=lambda _v_sqr_int, _volume: square_root(_v_sqr_int / _volume))
+        # Volume as integral observable
+        d_eqs += IntegralObservables(volume=1)
         d_eqs += IntegralObservableOutput(filename="observables",
                                          first_column=["time", "Strength", "Ma", "Ra"])  # output to write it to file
         # Add equations
