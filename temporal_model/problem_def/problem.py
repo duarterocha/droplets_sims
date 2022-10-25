@@ -146,6 +146,7 @@ class DropletTempProblem(Problem):
         g_eqs += DirichletBC(c=1) @ "interface" # Concentration at interface
         g_eqs += DirichletBC(mesh_x=0) @ "gas_axis"  # Fixed mesh coordinates at the boundaries
         g_eqs += DirichletBC(mesh_y=0) @ "gas_surface"
+        g_eqs += DirichletBC(mesh_x=True, mesh_y=True) @ "gas_infinity" # Keep initial value for curved interface
 
 
         # Initial conditions
