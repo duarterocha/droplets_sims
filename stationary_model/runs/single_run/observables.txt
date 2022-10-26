@@ -1,2 +1,2 @@
 #time	Strength	Ma	Ra	avg_velo[]	positive_stream_area_fraction[]
-1.0	100.0	1.0	20.0	0.01829257883992974	0.7355929319842505
+1.0	0.0	0.0	1.0	0.003560582582541757	1.0

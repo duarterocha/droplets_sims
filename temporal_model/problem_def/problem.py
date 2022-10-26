@@ -117,10 +117,10 @@ class DropletTempProblem(Problem):
 
         # Add surfactants
         if self.surfactants_bool:
-            lagr_mult_eqs = GlobalLagrangeMultiplier(lagrange_multiplier=0)  # Add lagrange multiplier for surfactants
-            self.add_equations(lagr_mult_eqs @ "globals")
-            lagr_mult = var("lagrange_multiplier", domain="globals")
-            d_eqs += SurfactantTransportEquation(lagr_mult, self.average_amount_surfactants) @ "interface"
+            lagr_mult_eqs2 = GlobalLagrangeMultiplier(lagrange_multiplier=0)  # Add lagrange multiplier for surfactants
+            self.add_equations(lagr_mult_eqs2 @ "globals")
+            lagr_mult2 = var("lagrange_multiplier", domain="globals")
+            d_eqs += SurfactantTransportEquation(lagr_mult2, self.average_amount_surfactants) @ "interface"
 
         # Plotting
         d_eqs += LocalExpressions(evap_rate=self.evap_rate) @ "interface"  # Output file
@@ -150,7 +150,6 @@ class DropletTempProblem(Problem):
         g_eqs += DirichletBC(mesh_x=0) @ "gas_axis"  # Fixed mesh coordinates at the boundaries
         g_eqs += DirichletBC(mesh_y=0) @ "gas_surface"
         g_eqs += DirichletBC(mesh_x=True, mesh_y=True) @ "gas_infinity" # Keep initial value for curved interface
-
 
         # Initial conditions
         g_eqs += InitialCondition(c=0) # Initial vapor concentration in the gas phase initially

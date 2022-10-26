@@ -1,5 +1,7 @@
 /
-|--globals : GlobalLagrangeMultiplier
+|--globals : Combined Equations:
+|             GlobalLagrangeMultiplier
+|             GlobalLagrangeMultiplier
 |--droplet : Combined Equations:
 |             MeshFileOutput
 |             StokesEquations
@@ -11,9 +13,10 @@
 |             IntegralObservables
 |             IntegralObservableOutput
 |  |--interface : Combined Equations:
-|  |               SurfactantTransportEquation
 |  |               NavierStokesFreeSurface
 |  |               NeumannBC
+|  |               StaticDropletInterface
+|  |               SurfactantTransportEquation
 |  |               LocalExpressions
 |  |               DirichletBC: streamfunc=0
 |  |--droplet_surface : Combined Equations:

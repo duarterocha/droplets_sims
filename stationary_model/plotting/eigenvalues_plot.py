@@ -5,7 +5,7 @@ import pandas as pd
 import os
 
 # Output file
-file = "/Users/duarterocha17/Desktop/droplet_sims/stability_analysis/param_scan/stability_analysis.txt"
+file = "/Users/duarterocha17/Desktop/droplet_sims/stationary_model/stability_analysis/stability_analysis/stability_analysis.txt"
 
 # Get data from file
 df = pd.read_csv(file, sep='\t')

@@ -31,7 +31,7 @@ class DropletTempProblem(Problem):
         self.radius = 1  # radius of droplet that defines the mesh
         self.contact_angle = 120 * degree # contact angle
         self.domain_size = 1  # size of domain
-        self.resolution = 0.01  # resolution of mesh
+        self.resolution = 0.025  # resolution of mesh
 
         # Surfactants
         self.surfactants_bool = surfactants
@@ -80,14 +80,6 @@ class DropletTempProblem(Problem):
         '''Droplet'''
         d_eqs = MeshFileOutput()
 
-        # Add surfactants
-        if self.surfactants_bool:
-            lagr_mult_eqs = GlobalLagrangeMultiplier(lagrange_multiplier=0)  # Add lagrange multiplier for surfactants
-            self.add_equations(lagr_mult_eqs @ "globals")
-            lagr_mult = var("lagrange_multiplier", domain="globals")
-            d_eqs += SurfactantTransportEquation(lagr_mult,
-                                                 self.average_amount_surfactants) @ "interface"  # The constraint is now fully assembled
-
         # Set equations
         d_eqs += StokesEquations(bulkforce=self.get_Ra(symbolic=True)*var("T")*vector(0,-1)*-1)  # Stokes Equation
         d_eqs += AdvectionDiffusionEquations(diffusivity=1, fieldnames="T", space="C2")  # Advection-Diffusion Equation
@@ -99,6 +91,21 @@ class DropletTempProblem(Problem):
         d_eqs += DirichletBC(T=0) @ "droplet_surface"  # Fixed temperature at contact line
         d_eqs += DirichletBC(pressure=0) @ "droplet_surface/interface"  # Offset pressure
         d_eqs += NeumannBC(T=self.evap_rate) @ "interface"  # Temperature flux through boundary
+
+        # Mimic interface movement
+        theta_dot_eqs1 = GlobalLagrangeMultiplier(theta_dot=0)  # Add lagrange multiplier for surfactants
+        self.add_equations(theta_dot_eqs1 @ "globals")
+        theta_dot = var("theta_dot", domain="globals")
+        d_eqs += StaticDropletInterface(theta_dot, contact_line_radius=self.radius, contact_angle=self.contact_angle,
+                                        evap_rate=self.evap_rate) @ "interface"
+
+        # Add surfactants
+        if self.surfactants_bool:
+            lagr_mult_eqs = GlobalLagrangeMultiplier(lagrange_multiplier=0)  # Add lagrange multiplier for surfactants
+            self.add_equations(lagr_mult_eqs @ "globals")
+            lagr_mult = var("lagrange_multiplier", domain="globals")
+            d_eqs += SurfactantTransportEquation(lagr_mult,
+                                                 self.average_amount_surfactants) @ "interface"  # The constraint is now fully assembled
 
         # Plotting
         d_eqs += LocalExpressions(evap_rate=self.evap_rate) @ "interface"  # Output file
