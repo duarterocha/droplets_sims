@@ -24,8 +24,9 @@ class SurfactantTransportEquation(InterfaceEquations):
 
 
 class StaticDropletInterface(Equations):
-    def __init__(self, theta_dot, *, contact_line_radius=1, contact_angle=120 * degree, evap_rate=1, evap_factor=1):
+    def __init__(self, theta_dot, *, sigma = 1, contact_line_radius=1, contact_angle=120 * degree, evap_rate=1, evap_factor=1):
         super(StaticDropletInterface, self).__init__()
+        self.sigma = sigma
         self.evap_rate = evap_rate
         self.evap_factor = evap_factor
         self.contact_angle = contact_angle
@@ -62,3 +63,8 @@ class StaticDropletInterface(Equations):
         self.add_residual(weak(dot(u, n) - (self.evap_factor * self.evap_rate + theta_dot * un_motion), ltest))  # dL/dl
         self.add_residual(weak(l, dot(n, utest)))  # dL/du
         self.add_residual(weak(-l * un_motion, theta_dot_test))  # dL/dtheta_dot
+
+        # Marangoni term
+        self.add_residual(weak(self.sigma,  div(utest)))
+
+

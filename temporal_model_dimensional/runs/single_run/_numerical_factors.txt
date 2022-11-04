@@ -1,0 +1,15 @@
+/
+|--globals : 
+|--droplet : 
+|             p_in_momentum_eq = 1.0000000000000000001
+|             div_u__in_conti_eq = 1.0
+|             inertia_in_momentum_eq = (1.3888888888888888888E-8)*meter**3*kilogram**(-1)
+|  |--droplet_surface : 
+|  |--droplet_axis : 
+|  |--interface : 
+|  |  |--droplet_surface : 
+|--gas : 
+|  |--gas_axis : 
+|  |--gas_surface : 
+|  |--gas_infinity : 
+|  |--interface : 

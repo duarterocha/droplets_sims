@@ -31,7 +31,7 @@ class DropletTempProblem(Problem):
         self.radius = 1  # radius of droplet that defines the mesh
         self.contact_angle = 120 * degree # contact angle
         self.domain_size = 1  # size of domain
-        self.resolution = 0.025  # resolution of mesh
+        self.resolution = 0.05  # resolution of mesh
 
         # Surfactants
         self.surfactants_bool = surfactants
@@ -67,6 +67,7 @@ class DropletTempProblem(Problem):
         else:
             return self.param_Strength.value # current value
 
+
     def define_problem(self):
         # Changing to an axisymmetric coordinate system
         self.set_coordinate_system(axisymmetric)
@@ -83,20 +84,23 @@ class DropletTempProblem(Problem):
         # Set equations
         d_eqs += StokesEquations(bulkforce=self.get_Ra(symbolic=True)*var("T")*vector(0,-1)*-1)  # Stokes Equation
         d_eqs += AdvectionDiffusionEquations(diffusivity=1, fieldnames="T", space="C2")  # Advection-Diffusion Equation
-        d_eqs += NavierStokesFreeSurface(surface_tension=(-self.get_Ma(symbolic=True) * var("T")) - self.get_Strength(symbolic=True)*var("Gamma"), static_interface=True) @ "interface" # Free interface
+        #d_eqs += NavierStokesFreeSurface(surface_tension=(-self.get_Ma(symbolic=True) * var("T")) - self.get_Strength(symbolic=True)*var("Gamma"), static_interface=True) @ "interface" # Free interface
 
         # Boundary Conditions
         d_eqs += DirichletBC(velocity_x=0, velocity_y=0) @ "droplet_surface"  # No slip at substrate
+        d_eqs += DirichletBC(kinbc=0) @ "interface/droplet_surface"  # Prevent no slip at interface/droplet_surface
         d_eqs += DirichletBC(velocity_x=0) @ "droplet_axis"  # No flow through axis
         d_eqs += DirichletBC(T=0) @ "droplet_surface"  # Fixed temperature at contact line
         d_eqs += DirichletBC(pressure=0) @ "droplet_surface/interface"  # Offset pressure
         d_eqs += NeumannBC(T=self.evap_rate) @ "interface"  # Temperature flux through boundary
 
-        # Mimic interface movement
-        theta_dot_eqs1 = GlobalLagrangeMultiplier(theta_dot=0)  # Add lagrange multiplier for surfactants
+        sigma = -self.get_Ma(symbolic=True) * var("T") - self.get_Strength(symbolic=True)*var("Gamma")
+
+        # Mimic interface motion
+        theta_dot_eqs1 = GlobalLagrangeMultiplier(theta_dot=0)  # Add lagrange multiplier for interface motion
         self.add_equations(theta_dot_eqs1 @ "globals")
         theta_dot = var("theta_dot", domain="globals")
-        d_eqs += StaticDropletInterface(theta_dot, contact_line_radius=self.radius, contact_angle=self.contact_angle,
+        d_eqs += StaticDropletInterface(theta_dot, sigma=sigma, contact_line_radius=geom.base_radius, contact_angle=self.contact_angle,
                                         evap_rate=self.evap_rate) @ "interface"
 
         # Add surfactants
@@ -118,8 +122,6 @@ class DropletTempProblem(Problem):
 
         # Set equations
         g_eqs += PoissonEquation(name="c", space="C2", source=None)  # Laplace Equation
-        # Empty dummy equations to allow for plotting the gas substrate. Without it, we cannot plot it
-        g_eqs += Equations() @ "gas_surface"
 
         # Boundary Conditions
         g_eqs += PoissonFarFieldMonopoleCondition(far_value=0) @ "gas_infinity"

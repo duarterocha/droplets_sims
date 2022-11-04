@@ -4,12 +4,12 @@ from pyoomph.equations.advection_diffusion import *
 from pyoomph.equations.stokes_stream_func import *
 from pyoomph.equations.ALE import *
 from pyoomph.equations.poisson import *
-from stationary_model.problem_def.equations import *
+from temporal_model.problem_def.equations import *
 from pyoomph.expressions.units import * # units
 from pyoomph.utils.dropgeom import DropletGeometry
-from stationary_model.problem_def.mesh import Mesh
+from temporal_model.problem_def.mesh import Mesh
 from pyoomph.meshes.remesher import * # to remesh at large distortions
-from stationary_model.problem_def.plot import Plotter
+from temporal_model.problem_def.plot import Plotter
 
 '''
 Define and solve problem
@@ -36,7 +36,7 @@ class DropletTempProblem(Problem):
         self.resolution = 0.025  # resolution of mesh
 
         # Slip length
-        self.sliplength = 1
+        self.sliplength = 10**-4
 
         # Pinned contact line or constant contact angle
         self.pinned_contact_line = True

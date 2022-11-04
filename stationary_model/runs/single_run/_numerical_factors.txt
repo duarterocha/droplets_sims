@@ -3,11 +3,11 @@
 |--droplet : 
 |             p_in_momentum_eq = 1
 |             div_u__in_conti_eq = 1
-|  |--interface : 
 |  |--droplet_surface : 
 |  |  |--interface : 
+|  |--interface : 
+|  |  |--droplet_surface : 
 |  |--droplet_axis : 
 |--gas : 
-|  |--gas_surface : 
 |  |--gas_infinity : 
 |  |--interface : 

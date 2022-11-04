@@ -12,24 +12,23 @@
 |             IntegralObservables
 |             IntegralObservables
 |             IntegralObservableOutput
-|  |--interface : Combined Equations:
-|  |               NavierStokesFreeSurface
-|  |               NeumannBC
-|  |               StaticDropletInterface
-|  |               SurfactantTransportEquation
-|  |               LocalExpressions
-|  |               DirichletBC: streamfunc=0
 |  |--droplet_surface : Combined Equations:
 |  |                     DirichletBC: velocity_x=0, velocity_y=0
 |  |                     DirichletBC: T=0
 |  |                     DirichletBC: streamfunc=0
 |  |  |--interface : DirichletBC: pressure=0
+|  |--interface : Combined Equations:
+|  |               NeumannBC
+|  |               StaticDropletInterface
+|  |               SurfactantTransportEquation
+|  |               LocalExpressions
+|  |               DirichletBC: streamfunc=0
+|  |  |--droplet_surface : DirichletBC: kinbc=0
 |  |--droplet_axis : Combined Equations:
 |  |                  DirichletBC: velocity_x=0
 |  |                  DirichletBC: streamfunc=0
 |--gas : Combined Equations:
 |         MeshFileOutput
 |         PoissonEquation: -div(<coeff>*grad(<c>))=<source> with <coeff>=1 and <source>=None
-|  |--gas_surface : Equations
 |  |--gas_infinity : PoissonFarFieldMonopoleCondition
 |  |--interface : DirichletBC: c=1

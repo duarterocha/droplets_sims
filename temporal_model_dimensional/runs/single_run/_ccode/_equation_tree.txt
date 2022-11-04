@@ -1,0 +1,48 @@
+/
+|--globals : Combined Equations:
+|             GlobalLagrangeMultiplier
+|             Scaling
+|--droplet : Combined Equations:
+|             MeshFileOutput
+|             PseudoElasticMesh
+|             NavierStokesEquations
+|             AdvectionDiffusionEquations
+|             InitialCondition: T=(293.14999999999997726)*kelvin
+|             RemeshWhen
+|             StreamFunctionFromVelocity
+|             IntegralObservables
+|             IntegralObservables
+|             IntegralObservables
+|             IntegralObservables
+|             IntegralObservables
+|             IntegralObservableOutput
+|  |--droplet_surface : Combined Equations:
+|  |                     DirichletBC: mesh_y=0, velocity_y=0
+|  |                     NavierStokesSlipLength
+|  |                     DirichletBC: T=(293.14999999999997726)*kelvin
+|  |                     DirichletBC: streamfunc=0
+|  |--droplet_axis : Combined Equations:
+|  |                  DirichletBC: mesh_x=0, velocity_x=0
+|  |                  DirichletBC: streamfunc=0
+|  |--interface : Combined Equations:
+|  |               SurfactantTransportEquation
+|  |               NavierStokesFreeSurface
+|  |               ConnectMeshAtInterface
+|  |               NeumannBC
+|  |               LocalExpressions
+|  |               DirichletBC: streamfunc=0
+|  |  |--droplet_surface : EnforcedBC
+|--gas : Combined Equations:
+|         MeshFileOutput
+|         PseudoElasticMesh
+|         PoissonEquation: -div(<coeff>*grad(<c>))=<source> with <coeff>=(0.0014768786127167631151)*scale(temporal,< code=0x0 , tags=>)*meter**5*second**(-1)*kilogram**(-1) and <source>=None
+|         InitialCondition: c=(0.008649999999999999703)*meter**(-3)*kilogram
+|         RemeshWhen
+|  |--gas_axis : DirichletBC: mesh_x=0
+|  |--gas_surface : DirichletBC: mesh_y=0
+|  |--gas_infinity : Combined Equations:
+|  |                  DirichletBC: mesh_x=True, mesh_y=True
+|  |                  PoissonFarFieldMonopoleCondition
+|  |--interface : Combined Equations:
+|  |               DirichletBC: c=(0.017299999999999999406)*meter**(-3)*kilogram
+|  |               ConnectMeshAtInterface

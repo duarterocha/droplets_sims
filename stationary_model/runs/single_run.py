@@ -5,12 +5,12 @@ if __name__ == "__main__":
 
         problem.set_c_compiler("tcc")
 
-        problem.contact_angle = 150 * degree
+        problem.contact_angle = 120 * degree
         problem.surfactants_bool = True
 
         problem.set_Strength(0)
-        problem.set_Ma(0)
-        problem.set_Ra(1)
+        problem.set_Ma(12)
+        problem.set_Ra(10000)
 
         problem.solve(globally_convergent_newton=True,max_newton_iterations=100)  # solve and output
         problem.output_at_increased_time()

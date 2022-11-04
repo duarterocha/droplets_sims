@@ -1,0 +1,2 @@
+#time[s]	avg_velo[m/s]	positive_stream_area_fraction[]	volume[m^3]
+0.0	0.0	0.5	5.441398042256319e-09
