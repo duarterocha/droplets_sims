@@ -42,12 +42,12 @@
 |--gas : Combined Equations:
 |         MeshFileOutput
 |         PseudoElasticMesh
-|         PoissonEquation: -div(<coeff>*grad(<c>))=<source> with <coeff>=(0.0014768786127167631151)*kilogram**(-1)*meter**5*scale(temporal,< code=0x0 , tags=>)*second**(-1) and <source>=None
-|         InitialCondition: c=(0.0129749999999999995545)*kilogram*meter**(-3)
+|         PoissonEquation: -div(<coeff>*grad(<c>))=<source> with <coeff>=(0.0014768786127167631151)*scale(temporal,< code=0x0 , tags=>)*meter**5*second**(-1)*kilogram**(-1) and <source>=None
+|         InitialCondition: c=(0.0129749999999999995545)*meter**(-3)*kilogram
 |         RemeshWhen
 |  |--gas_axis : DirichletBC: mesh_x=0
 |  |--gas_surface : DirichletBC: mesh_y=0
 |  |--gas_infinity : Combined Equations:
 |  |                  DirichletBC: mesh_x=True, mesh_y=True
 |  |                  PoissonFarFieldMonopoleCondition
-|  |--interface : DirichletBC: c=(0.017299999999999999406)*kilogram*meter**(-3)
+|  |--interface : DirichletBC: c=(0.017299999999999999406)*meter**(-3)*kilogram

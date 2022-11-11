@@ -61,10 +61,10 @@ class EvapWaterDropletProblem(Problem):
         # Add the plotter
         self.plotter = Plotter(self)
 
-    def set_Ma_G(self,value):
-        self.Ma_G.value=value
+    def set_Ma_G(self, value):
+        self.Ma_G.value = value
 
-    def get_Ma_G(self,symbolic=False):
+    def get_Ma_G(self, symbolic=False):
         if symbolic:
             return self.Ma_G.get_symbol() # Symbolic for expressions
         else:
@@ -117,7 +117,7 @@ class EvapWaterDropletProblem(Problem):
         d_eqs += InitialCondition(Gamma=self.initial_G) @ "interface"
         d_eqs += DirichletBC(u_p_x=0, u_p_y=0) @ "interface/droplet_surface"
         d_eqs += DirichletBC(u_p_x=0, u_p_y=0) @ "interface/droplet_axis"
-        surface_tension = self.surface_tension - self.get_Ma_G(symbolic=True) * var("Gamma") / self.initial_G * 72 * milli * newton / meter
+        surface_tension = self.surface_tension - self.get_Ma_G() * var("Gamma") / self.initial_G * 72 * milli * newton / meter
         d_eqs += NavierStokesFreeSurface(surface_tension=surface_tension, mass_transfer_rate=self.evap_rate) @ "interface"  # Kinematic boundary condition, Laplace pressure and Marangoni stress
         g_eqs += DirichletBC(c=self.c_sat) @ "interface"
         d_eqs += ConnectMeshAtInterface() @ "interface"  # Connect moving liquid and gas meshes at interface

@@ -10,5 +10,5 @@ if __name__ == "__main__":
 
         problem.max_refinement_level = 0
 
-        problem.run(30*second,startstep=0.001*second,outstep=True,temporal_error=1, out_initially=False, maxstep=2*second)
+        problem.run(25*second,startstep=0.001*second,outstep=True,temporal_error=1, out_initially=False, maxstep=2*second)
         problem.output_at_increased_time()

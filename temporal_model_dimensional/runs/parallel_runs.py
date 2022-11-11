@@ -9,9 +9,18 @@ if __name__=="__main__":
     Strength_param_range = parameter_range(numperoder=20, log_scale=False, Strength=1)["Strength"]
 
     for strength_value in Strength_param_range: #Scan the spring constant
-        sim=scanner.new_sim("Ma_G_"+str(round(strength_value)))
+        sim=scanner.new_sim("diffusivity_"+str(round(strength_value)))
 
-        #Modify the parameters
+        default_surfactant_diffusivity = 1e-10
+
+        #Modify the parameters (strength_value ranges from 0 to 0.02; with this, the surfactants diffusivity will range
+        # from 1e-10 to 1e-6)
+        sim.surfactants_diffusivity = default_surfactant_diffusivity + strength_value/0.02*(1e-6-default_surfactant_diffusivity)
+        sim.surfactants_diffusivity *= meter**2 / second
+
+        sim = scanner.new_sim("Ma_G_" + str(round(strength_value)))
+
+        # Modify the parameters (Ma_G ranging from 0 to 0.02)
         sim.Ma_G = strength_value
 
     #Run all (and rerun also already finished sims)
