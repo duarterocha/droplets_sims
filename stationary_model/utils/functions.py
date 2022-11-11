@@ -6,7 +6,7 @@ Parameter range
 '''
 
 
-def parameter_range(numperoder=5, **kwargs):
+def parameter_range(numperoder = 5, log_scale = True, **kwargs):
     if len(kwargs.items()) == 0:
         raise (RuntimeError("Please enter at least a parameter"))
 
@@ -21,7 +21,10 @@ def parameter_range(numperoder=5, **kwargs):
         # Get number of points to consider for each parameter
         key_num_pts = numperoder * (key_max_range_power_ten - key_min_range_power_ten) + 1
         # Get parameter range
-        key_param_range = numpy.logspace(key_min_range_power_ten, key_max_range_power_ten, key_num_pts, endpoint=True)
+        if log_scale:
+            key_param_range = numpy.logspace(key_min_range_power_ten, key_max_range_power_ten, key_num_pts, endpoint=True)
+        else:
+            key_param_range = numpy.linspace(0, 0.02*key_max_range_power_ten, key_num_pts, endpoint=True)
         param_dict[key] = key_param_range
 
     return (param_dict)

@@ -24,7 +24,7 @@ class Mesh(GmshTemplate):
         p_center = (0, - self.radius * cos(self.contact_angle) * S)
         p_surface = self.point(self.radius * sin(self.contact_angle) * S, 0)
         p_apex = self.point(0, self.radius * (1 - cos(self.contact_angle)) * S)
-        gas_radius = self.radius * S * 3
+        gas_radius = self.radius * S * 3.5
         p_surface_infinity = self.point(gas_radius, 0, size = 1.25)
         p_apex_infinity = self.point(0, gas_radius, size = 1.25)
 

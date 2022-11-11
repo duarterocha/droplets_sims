@@ -5,8 +5,10 @@ if __name__ == "__main__":
 
         problem.set_c_compiler("tcc")
 
-        problem.contact_angle = 120 * degree
-        problem.max_refinement_level=0
+        problem.surfactants_diffusivity = 1e-9 * meter ** 2 / second
+        problem.set_Ma_G(0.01)  # Surfactants reduce the surface tension of pure water by 1%
 
-        problem.run(10*second,startstep=0.001*second,outstep=True,temporal_error=1)
+        problem.max_refinement_level = 0
+
+        problem.run(30*second,startstep=0.001*second,outstep=True,temporal_error=1, out_initially=False, maxstep=2*second)
         problem.output_at_increased_time()

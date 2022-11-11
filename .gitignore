@@ -2,6 +2,8 @@ stationary_model/stability_analysis/bifurcation_tracking
 stationary_model/stability_analysis/param_scan
 stationary_model/stability_analysis/stability_analysis
 stationary_model/stability_analysis/temporal_solve
+temporal_model_dimensional/runs/parallel_runs
+temporal_model_dimensional/runs/single_run
 temporal_model/runs/single_run
 __pycache__
 *.pyc
