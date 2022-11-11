@@ -11,8 +11,6 @@ if __name__=="__main__":
     for strength_value in Strength_param_range: #Scan the spring constant
         sim=scanner.new_sim("Ma_G_"+str(round(strength_value)))
 
-        default_surfactants_diffusivity = 1e-9 * meter ** 2 / second
-
         #Modify the parameters
         sim.Ma_G = strength_value
 
