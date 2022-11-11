@@ -79,6 +79,9 @@ class EvapWaterDropletProblem(Problem):
         self.set_scaling(pressure= self.surface_tension_ref / scale_factor("spatial"))
         self.set_scaling(c=self.c_sat)
 
+        print("Surfactant diffusivity: " + str(self.surfactants_diffusivity))
+        print("Ma_G: " + str(self.get_Ma_G()))
+
         # Insert mesh
         mesh = Mesh(radius=self.droplet_geom.curv_radius, contact_angle=self.droplet_geom.contact_angle)
         mesh.default_resolution = self.resolution

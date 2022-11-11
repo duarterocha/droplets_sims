@@ -19,6 +19,8 @@
       <excludeFolder url="file://$MODULE_DIR$/stationary_model/plotting/output_figures" />
       <excludeFolder url="file://$MODULE_DIR$/stationary_model/stability_analysis/stability_analysis" />
       <excludeFolder url="file://$MODULE_DIR$/temporal_model/runs/single_run" />
+      <excludeFolder url="file://$MODULE_DIR$/temporal_model_dimensional/runs/parallel_runs" />
+      <excludeFolder url="file://$MODULE_DIR$/temporal_model_dimensional/runs/single_run" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
