@@ -25,14 +25,13 @@ class EvapWaterDropletProblem(Problem):
 
         # Droplet properties
         self.water = PureLiquidWater()
-        self.water.evaluate_at_condition("dynamic_viscosity", temperature=21 * celsius)
         self.droplet_density = self.water.mass_density  # Density of droplet
         self.droplet_viscosity = self.water.dynamic_viscosity  # Viscosity of droplet
         self.specific_heat_capacity = self.water.specific_heat_capacity
         self.conductivity = self.water.thermal_conductivity  # Droplet thermal conductivity
         self.thermal_diffusivity = self.conductivity / (self.droplet_density * self.specific_heat_capacity)  # Droplet diffusivity
         self.gravity = 9.81 * meter / second**2
-        self.g = self.gravity * vector(0, -1) * minimum(var("time") / (2*second), 1)  # Gravity acceleration
+        self.g = self.gravity * vector(0, -1)  # Gravity acceleration
         self.volume = (3.5 * 10**(-9)) * meter ** 3  # Volume of droplet
         self.substrate_temperature = (21 + 273.15) * kelvin  # Isothermal substrate temperature
 
@@ -56,15 +55,21 @@ class EvapWaterDropletProblem(Problem):
         self.resolution = 0.025 * milli * meter  # Resolution of mesh
         self.sliplength = 1 * micro * meter  # Slip length
         self.droplet_geom = DropletGeometry(volume=self.volume, contact_angle=self.contact_angle)
+        ic = {'density': self.water.evaluate_at_condition("mass_density", temperature=21 * celsius),
+              "surface_tension": self.surface_tension_ref}
+        self.droplet_geom.sample_gravity_shape(surface_tension=ic["surface_tension"],
+                                                                   delta_rho_times_g=ic["density"]*self.gravity,
+                                                                   output_dir=self.get_output_directory("_initial_droplet_shape"),
+                                                                   fixations={'volume', 'base_radius'})
         self.droplet_radius = self.droplet_geom.curv_radius
 
         # Add the plotter
         self.plotter = Plotter(self)
 
-    def set_Ma_G(self, value):
-        self.Ma_G.value = value
+    def set_Ma_G(self,value):
+        self.Ma_G.value=value
 
-    def get_Ma_G(self, symbolic=False):
+    def get_Ma_G(self,symbolic=False):
         if symbolic:
             return self.Ma_G.get_symbol() # Symbolic for expressions
         else:
@@ -78,9 +83,6 @@ class EvapWaterDropletProblem(Problem):
         self.set_scaling(temperature=self.substrate_temperature)
         self.set_scaling(pressure= self.surface_tension_ref / scale_factor("spatial"))
         self.set_scaling(c=self.c_sat)
-
-        print("Surfactant diffusivity: " + str(self.surfactants_diffusivity))
-        print("Ma_G: " + str(self.get_Ma_G()))
 
         # Insert mesh
         mesh = Mesh(radius=self.droplet_geom.curv_radius, contact_angle=self.droplet_geom.contact_angle)
@@ -107,12 +109,18 @@ class EvapWaterDropletProblem(Problem):
         d_eqs += PseudoElasticMesh()  # Mesh motion
         d_eqs += NavierStokesEquations(mass_density=self.droplet_density, dynamic_viscosity=self.droplet_viscosity, gravity=self.g, boussinesq=True) # Navier Stokes equations
         d_eqs += AdvectionDiffusionEquations(diffusivity=self.thermal_diffusivity, fieldnames="temperature", space="C2")  # Advection-Diffusion equation
-        d_eqs += DirichletBC(mesh_y=0, velocity_y=0) @ "droplet_surface"  # Allow slip but fix mesh at substrate
-        d_eqs += NavierStokesSlipLength(sliplength=self.sliplength) @ "droplet_surface"  # Navier-Slip condition
         d_eqs += DirichletBC(temperature=self.substrate_temperature) @ "droplet_surface"  # Fixed temperature at contact line
+
         d_eqs += DirichletBC(mesh_x=0, velocity_x=0) @ "droplet_axis"  # Fix mesh at axisymmetry and no normal flow
         d_eqs += InitialCondition(temperature=self.substrate_temperature)  # Droplet at substrate temperature
         d_eqs += RemeshWhen(RemeshingOptions(max_expansion=1.2, min_expansion=0.8))
+        if self.pinned_contact_line:
+            d_eqs += DirichletBC(mesh_x=True, mesh_y=0) @ "droplet_surface"  # Allow slip but fix mesh at substrate
+            d_eqs += NoSlipBC() @ "droplet_surface"  # No-Slip BC
+            d_eqs += DirichletBC(_kin_bc=0) @ "interface/droplet_surface"
+        else:
+            d_eqs += DirichletBC(mesh_y=0, velocity_y=0) @ "droplet_surface"  # Allow slip but fix mesh at substrate
+            d_eqs += NavierStokesSlipLength(sliplength=self.sliplength) @ "droplet_surface"  # Navier-Slip condition
 
         '''Interface'''
 
@@ -120,15 +128,14 @@ class EvapWaterDropletProblem(Problem):
         d_eqs += InitialCondition(Gamma=self.initial_G) @ "interface"
         d_eqs += DirichletBC(u_p_x=0, u_p_y=0) @ "interface/droplet_surface"
         d_eqs += DirichletBC(u_p_x=0, u_p_y=0) @ "interface/droplet_axis"
-        surface_tension = self.surface_tension - self.get_Ma_G() * var("Gamma") / self.initial_G * 72 * milli * newton / meter
+        surface_tension = self.surface_tension - self.get_Ma_G(symbolic=True) * var("Gamma") / self.initial_G * 72 * milli * newton / meter
         d_eqs += NavierStokesFreeSurface(surface_tension=surface_tension, mass_transfer_rate=self.evap_rate) @ "interface"  # Kinematic boundary condition, Laplace pressure and Marangoni stress
         g_eqs += DirichletBC(c=self.c_sat) @ "interface"
         d_eqs += ConnectMeshAtInterface() @ "interface"  # Connect moving liquid and gas meshes at interface
         d_eqs += NeumannBC(temperature=self.evap_rate * self.latent_heat * self.thermal_diffusivity / self.conductivity) @ "interface"  # Temperature flux through boundary
-        # Different contact line dynamics
         if self.pinned_contact_line:  # if pinned
-            # Pinned contact line means mesh_x is fixed
-            d_eqs += EnforcedBC(velocity_x=partial_t(var("mesh_x")) - 0) @ "interface/droplet_surface"
+            pass
+            #d_eqs += EnforcedBC(velocity_x=partial_t(var("mesh_x")) - 0) @ "interface/droplet_surface"  # Pinned contact line means mesh_x is fixed
         else:
             d_eqs += NavierStokesContactAngle(contact_angle=self.contact_angle) @ "interface/droplet_surface"  # Constant contact angle
 

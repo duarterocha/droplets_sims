@@ -28,6 +28,8 @@ for file in diffusivity_dirs:
 Ma_G_values = np.array(Ma_G_values)
 df_Ma_G = pd.DataFrame(data={'Ma_G': Ma_G_values[:,0], 'avg_velo': Ma_G_values[:,1]})
 df_Ma_G=df_Ma_G.sort_values(by="Ma_G", ignore_index=True)
+df_Ma_G=df_Ma_G.loc[(df_Ma_G['Ma_G'] != 0.002) & (df_Ma_G['Ma_G'] !=0.003)]
+print(df_Ma_G)
 
 diffusivity_values = np.array(diffusivity_values)
 df_diffusivity = pd.DataFrame(data={'diffusivity': diffusivity_values[:,0], 'avg_velo': diffusivity_values[:,1]})
